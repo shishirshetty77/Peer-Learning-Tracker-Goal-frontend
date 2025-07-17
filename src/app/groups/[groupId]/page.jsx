@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
 export default function GroupDetailsPage() {
   const { groupId } = useParams();
   const [group, setGroup] = useState(null);
@@ -15,7 +17,7 @@ export default function GroupDetailsPage() {
 
   const fetchGroupDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/groups/${groupId}/details`, {
+      const res = await axios.get(`${API_BASE}/api/groups/${groupId}/details`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGroup(res.data.group);
@@ -27,7 +29,7 @@ export default function GroupDetailsPage() {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/auth/me", {
+      const res = await axios.get(`${API_BASE}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCurrentUserId(res.data.id);
@@ -41,7 +43,7 @@ export default function GroupDetailsPage() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "http://localhost:8080/api/goals",
+        `${API_BASE}/api/goals`,
         newGoal,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -56,7 +58,7 @@ export default function GroupDetailsPage() {
 
   const handleDeleteGoal = async (id) => {
     try {
-      await axios.delete(`http://localhost:8080/api/goals/${id}`, {
+      await axios.delete(`${API_BASE}/api/goals/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGoals(goals.filter((goal) => goal._id !== id));
@@ -68,7 +70,7 @@ export default function GroupDetailsPage() {
   const handleUpdateProgress = async (id, newProgress) => {
     try {
       const res = await axios.put(
-        `http://localhost:8080/api/goals/${id}`,
+        `${API_BASE}/api/goals/${id}`,
         { progress: newProgress },
         { headers: { Authorization: `Bearer ${token}` } }
       );

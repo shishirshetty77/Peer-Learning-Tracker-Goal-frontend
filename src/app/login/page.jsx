@@ -1,7 +1,12 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
+import ReactHowler from "react-howler";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +17,8 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [musicTrack, setMusicTrack] = useState("main"); // "main" or "fail"
+  const [musicKey, setMusicKey] = useState(0); // To force restart music
 
   useEffect(() => {
     if (showSuccess) {
@@ -42,96 +49,130 @@ export default function LoginPage() {
     }
 
     const url = isLogin
-      ? "http://localhost:8080/api/auth/login"
-      : "http://localhost:8080/api/auth/register";
+      ? `${API_BASE_URL}/api/auth/login`
+      : `${API_BASE_URL}/api/auth/register`;
 
     try {
       const res = await axios.post(url, { email, password });
       if (res.data.token && isLogin) {
         localStorage.setItem("token", res.data.token);
         setShowSuccess(true);
-        router.push("/dashboard");
+        setMusicTrack("main");
+        setMusicKey((prev) => prev + 1);
+        setTimeout(() => router.push("/dashboard"), 3000);
       } else if (!isLogin) {
         setShowSuccess(true);
         setIsLogin(true);
       }
     } catch (err) {
       setError(err.response?.data?.msg || "Authentication failed.");
+      setMusicTrack("fail"); // switch to dark mode soundtrack
+      setMusicKey((prev) => prev + 1);
     } finally {
       setLoading(false);
     }
   };
 
+  const getMusicSrc = () => {
+    return musicTrack === "fail"
+      ? "/login-fail-theme.mp3"
+      : "/epic-login-theme.mp3";
+  };
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] flex items-center justify-center px-4 relative overflow-hidden text-white font-sans">
-      {/* Animated Background */}
-      <div className="absolute w-full h-full z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-pink-500 opacity-20 blur-3xl rounded-full animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500 opacity-20 blur-3xl rounded-full animate-ping" />
+    <main className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden">
+      {/* Epic Background Music */}
+      <ReactHowler
+        key={musicKey}
+        src={getMusicSrc()}
+        playing
+        loop
+        volume={0.8}
+      />
+
+      {/* Cosmic Particle Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="w-full h-full animate-[spin_60s_linear_infinite] bg-[radial-gradient(ellipse_at_center,_#0ff,_transparent)] blur-3xl opacity-10"></div>
       </div>
 
-      {/* Auth Form */}
-      <div className="w-full max-w-sm z-10 bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-[inset_0_1px_4px_rgba(255,255,255,0.2)] border border-white/20">
-        <h1 className="text-3xl font-bold text-center mb-4 tracking-widest">
+      {/* Login Card */}
+      <motion.div
+        initial={{ rotateY: 90, opacity: 0 }}
+        animate={{ rotateY: 0, opacity: 1 }}
+        transition={{ duration: 1.2, ease: "easeInOut" }}
+        className="relative z-10 bg-gradient-to-br from-[#1a1a2e]/80 via-[#0f3460]/80 to-[#16213e]/80 backdrop-blur-3xl text-white rounded-3xl p-8 max-w-sm w-full shadow-[0_0_80px_rgba(0,255,255,0.3)] border border-white/20"
+      >
+        <h1 className="text-4xl font-extrabold text-center tracking-widest glow-text">
           {isLogin ? "Login" : "Sign Up"}
         </h1>
 
-        <div className="space-y-4">
-          <input
+        <div className="space-y-5 mt-8">
+          <motion.input
+            whileFocus={{ scale: 1.05 }}
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded-xl bg-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+            className="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
           />
-          <input
+          <motion.input
+            whileFocus={{ scale: 1.05 }}
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded-xl bg-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+            className="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
           />
           {!isLogin && (
-            <input
+            <motion.input
+              whileFocus={{ scale: 1.05 }}
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded-xl bg-white/20 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all"
+              className="w-full px-4 py-3 rounded-xl bg-white/10 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition"
             />
           )}
 
-          {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
+          {error && <p className="text-red-400 text-sm text-center animate-pulse">{error}</p>}
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleAuth}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white py-2 rounded-xl font-semibold hover:scale-105 hover:shadow-lg transition duration-300 disabled:opacity-50"
+            className="w-full py-3 bg-gradient-to-r from-[#ff0080] via-[#7928ca] to-[#2afadf] text-white rounded-xl font-bold shadow-lg hover:shadow-pink-500/50 transition-all"
           >
             {loading ? (isLogin ? "Logging in..." : "Signing up...") : isLogin ? "Login" : "Sign Up"}
-          </button>
+          </motion.button>
 
-          <p className="text-sm text-center text-white/70 mt-4">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <p className="text-center text-white/70">
+            {isLogin ? "Don't have an account?" : "Already have an account?"}
             <button
               onClick={() => {
                 setIsLogin(!isLogin);
                 setError("");
               }}
-              className="text-cyan-300 hover:underline font-medium"
+              className="ml-2 text-cyan-300 hover:underline"
             >
               {isLogin ? "Sign up" : "Login"}
             </button>
           </p>
-        </div>
 
-        {/* Success Toast */}
-        {showSuccess && (
-          <div className="mt-4 text-green-300 text-sm text-center animate-pulse">
-            ✅ {isLogin ? "Welcome back! Redirecting..." : "Account created. Please log in to continue."}
-          </div>
-        )}
-      </div>
+          <AnimatePresence>
+            {showSuccess && (
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="text-green-300 text-center mt-4 text-sm animate-pulse"
+              >
+                ✅ {isLogin ? "Welcome back! Redirecting..." : "Account created. Please log in to continue."}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </motion.div>
     </main>
   );
 }

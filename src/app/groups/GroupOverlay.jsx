@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 export default function GroupOverlay({ group, onClose }) {
   const [goals, setGoals] = useState([]);
 
@@ -5,7 +8,7 @@ export default function GroupOverlay({ group, onClose }) {
     const token = localStorage.getItem("token");
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/goals/by-group/${group._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/goals/by-group/${group._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
