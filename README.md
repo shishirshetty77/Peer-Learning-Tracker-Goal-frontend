@@ -26,16 +26,6 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ---
 
-## 📸 Screenshots
-
-### 🔐 Login Page
-<img width="1403" height="738" alt="Login Screenshot" src="https://github.com/user-attachments/assets/7affa7c3-fb62-4fb8-b24f-731c3078583a" />
-
-### 📊 Dashboard
-<img width="1416" height="799" alt="Dashboard Screenshot" src="https://github.com/user-attachments/assets/542edbbf-4a51-4358-afab-d5380586ab5f" />
-
-### 👥 Groups
-<img width="1434" height="708" alt="Groups Screenshot" src="https://github.com/user-attachments/assets/3b2f826a-b53d-4822-b4ac-009d294c53c2" />
 
 ---
 
